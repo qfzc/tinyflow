@@ -239,7 +239,7 @@
 
 <div class="tf-node-wrapper">
     <div class="tf-node-wrapper-title">
-        TinyFlow.ai
+        ai
     </div>
     <div class="tf-node-wrapper-body">
         <Collapse {items} activeKeys={activeKeys} onChange={(_,actionKeys) => {

@@ -11,21 +11,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
         with:
-          version: 9.15.4
+          node-version: 18
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Build packages
-        run: pnpm build --filter=!demo*
+        run: npm run build --workspaces --if-present
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

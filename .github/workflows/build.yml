@@ -18,62 +18,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages (skip demos)
-        run: |
-          echo "Building packages..."
-          # 只构建核心包，跳过 demo
-          pnpm build --filter '!demo-*' || echo "Build skipped or failed"
-          pnpm build --filter '@tinyflow-ai/ui' || echo "UI build failed"
-          pnpm build --filter '@tinyflow-ai/vue' || echo "Vue build failed"
-          pnpm build --filter '@tinyflow-ai/react' || echo "React build failed"
-          pnpm build --filter '@tinyflow-ai/svelte' || echo "Svelte build failed"
+      - name: Build @tinyflow-ai/ui
+        run: pnpm --filter @tinyflow-ai/ui build
 
-      - name: List dist files
-        run: |
-          echo "Checking dist files..."
-          find packages -name "dist" -type d | while read dir; do
-            echo "=== $dir ==="
-            ls -lh "$dir" || true
-          done
+      - name: Build @tinyflow-ai/vue
+        run: pnpm --filter @tinyflow-ai/vue build
+
+      - name: Build @tinyflow-ai/react
+        run: pnpm --filter @tinyflow-ai/react build
+
+      - name: Build @tinyflow-ai/svelte
+        run: pnpm --filter @tinyflow-ai/svelte build
 
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: |
-            packages/*/dist
-            !packages/*/demo-*/dist
+          path: packages/*/dist
           retention-days: 3
-          if-no-files-found: warn
-
-      - name: Build summary
-        if: always()
-        run: |
-          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Build finished" >> $GITHUB_STEP_SUMMARY

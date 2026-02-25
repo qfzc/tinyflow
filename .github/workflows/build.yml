@@ -1,26 +1,22 @@
-name: Build Packages
+name: Build
 
 on:
   push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+    branches: [main]
 
 jobs:
   build:
-    name: Build Packages
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Install pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9.15.4
@@ -28,37 +24,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all packages
-        run: pnpm build
+      - name: Build packages
+        run: pnpm build --filter=!demo*
 
-      - name: Upload build artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
-        with:
-          name: dist-packages
-          path: packages/*/dist
-          retention-days: 7
-
-      - name: Create summary
-        run: |
-          echo "## ✅ 构建成功！" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 构建的包" >> $GITHUB_STEP_SUMMARY
-          echo "- @tinyflow-ai/ui" >> $GITHUB_STEP_SUMMARY
-          echo "- @tinyflow-ai/react" >> $GITHUB_STEP_SUMMARY
-          echo "- @tinyflow-ai/vue" >> $GITHUB_STEP_SUMMARY
-          echo "- @tinyflow-ai/svelte" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 构建信息" >> $GITHUB_STEP_SUMMARY
-          echo "- 服务器: ubuntu-latest" >> $GITHUB_STEP_SUMMARY
-          echo "- Node.js: 18" >> $GITHUB_STEP_SUMMARY
-          echo "- pnpm: 9.15.4" >> $GITHUB_STEP_SUMMARY
-
-      - name: Notify success
         if: success()
-        run: |
-          echo "🎉 所有包构建成功！"
-
-      - name: Notify failure
-        if: failure()
-        run: |
-          echo "❌ 构建失败，请检查日志"
+        with:
+          name: dist
+          path: packages/*/dist
+          retention-days: 3

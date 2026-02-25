@@ -68,10 +68,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tinyflow-ai/tinyflow"
+    "url": "https://github.com/qfzc/tinyflow"
   },
   "bugs": {
-    "url": "https://github.com/tinyflow-ai/tinyflow/issues"
+    "url": "https://github.com/qfzc/tinyflow/issues"
   },
-  "homepage": "https://github.com/tinyflow-ai/tinyflow#readme"
+  "homepage": "https://github.com/qfzc/tinyflow#readme"
 }

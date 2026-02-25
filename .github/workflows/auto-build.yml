@@ -1,0 +1,58 @@
+name: Auto Build on Push
+
+on:
+  push:
+    branches: [main, dev]
+
+jobs:
+  build:
+    name: Build and Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint code
+        run: pnpm lint || echo "⚠️  Lint 失败，继续构建"
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: packages/*/dist
+          retention-days: 7
+
+      - name: Create summary
+        run: |
+          echo "✅ 构建成功！" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 构建的包" >> $GITHUB_STEP_SUMMARY
+          echo "- @tinyflow-ai/ui" >> $GITHUB_STEP_SUMMARY
+          echo "- @tinyflow-ai/react" >> $GITHUB_STEP_SUMMARY
+          echo "- @tinyflow-ai/vue" >> $GITHUB_STEP_SUMMARY
+          echo "- @tinyflow-ai/svelte" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on success
+        if: success()
+        run: echo "🎉 构建成功！所有包已构建完毕。"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "❌ 构建失败，请检查日志。"
